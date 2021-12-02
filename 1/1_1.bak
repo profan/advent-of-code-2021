@@ -1,0 +1,8 @@
+#lang racket
+
+(call-with-input-file "day_1_input.txt"
+  (lambda (in)
+    (define first-value 0)
+    (for ([line (in-lines in)])
+      (displayln line)
+      )))
