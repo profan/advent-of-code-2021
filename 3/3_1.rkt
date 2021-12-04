@@ -37,15 +37,16 @@
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
       (define (calculate-rate fn)
-        (define calculated-rates
-          (for/list : (Listof String) ([n (in-range bit-count)])
+        (define calculated-rate
+          (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
             (define column (bit-column all-lines bit-count n))
             (define calculated-rate (fn column))
-            (number->string calculated-rate)))
-        (define combined-rate-bit-string (string-join calculated-rates "")) ;; this is kinda ugly.. :D shouldn't need strings really
-        (define combined-rate (assert (string->number combined-rate-bit-string 2) exact-integer?))
-        combined-rate)
-
+            (define new-bitwise-result
+              (if (eq? calculated-rate 1)
+                  (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
+                  (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
+            new-bitwise-result))
+        calculated-rate)
       (define gamma-rate (calculate-rate calculate-gamma-rate))
       (define epsilon-rate (calculate-rate calculate-epsilon-rate))
       (define power-consumption (* gamma-rate epsilon-rate))
