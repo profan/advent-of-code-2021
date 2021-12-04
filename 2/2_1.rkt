@@ -33,8 +33,7 @@
     (lambda ([in : Input-Port])
       (interpret (in-commands (in-lines in))))))
 
-(define final-hozirontal-position (submarine-x resulting-submarine))
 (define final-depth (submarine-y resulting-submarine))
-
-(define final-horizontal-position-multiplied-by-depth (* final-hozirontal-position final-depth))
+(define final-horizontal-position (submarine-x resulting-submarine))
+(define final-horizontal-position-multiplied-by-depth (* final-horizontal-position final-depth))
 (printf "day 2 part 1, result: ~a" final-horizontal-position-multiplied-by-depth)
