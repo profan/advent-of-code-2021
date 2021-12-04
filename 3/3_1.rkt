@@ -42,7 +42,7 @@
             (define column (bit-column all-lines bit-count n))
             (define calculated-rate (fn column))
             (define new-bitwise-result
-              (if (eq? calculated-rate 1)
+              (if (= calculated-rate 1)
                   (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
                   (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
             new-bitwise-result))
