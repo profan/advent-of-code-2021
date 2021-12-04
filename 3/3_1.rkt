@@ -28,30 +28,39 @@
 (define (calculate-epsilon-rate bit-column)
   (if (more-zeroes-than-ones? bit-column) 1 0))
 
-(define submarine-power-consumption
-  (call-with-input-file
-    "day_3_input.txt"
-    (lambda ([in : Input-Port])
+(: run-timed (All (A) (-> (-> A) (Values A Real))))
+(define (run-timed timed-fn)
+  (define start-time (current-inexact-milliseconds))
+  (define function-result (timed-fn))
+  (define total-time (- (current-inexact-milliseconds) start-time))
+  (values function-result total-time))
+
+(define-values (submarine-power-consumption total-run-time)
+  (run-timed
+   (lambda ()
+     (call-with-input-file
+         "day_3_input.txt"
+       (lambda ([in : Input-Port])
       
-      (define all-lines (sequence->vector (in-lines in)))
-      (define all-integers (in-binary-integers all-lines))
-      (define bit-count (string-length (vector-ref all-lines 0)))
+         (define all-lines (sequence->vector (in-lines in)))
+         (define all-integers (in-binary-integers all-lines))
+         (define bit-count (string-length (vector-ref all-lines 0)))
 
-      (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
-      (define (calculate-rate fn)
-        (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
-          (define column (bit-column all-integers bit-count n))
-          (define calculated-rate (fn column))
-          (define new-bitwise-result
-            (if (= calculated-rate 1)
-                (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
-                (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
-          new-bitwise-result))
+         (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
+         (define (calculate-rate fn)
+           (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
+             (define column (bit-column all-integers bit-count n))
+             (define calculated-rate (fn column))
+             (define new-bitwise-result
+               (if (= calculated-rate 1)
+                   (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
+                   (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
+             new-bitwise-result))
 
-      (define gamma-rate (calculate-rate calculate-gamma-rate))
-      (define epsilon-rate (calculate-rate calculate-epsilon-rate))
-      (define power-consumption (* gamma-rate epsilon-rate))
+         (define gamma-rate (calculate-rate calculate-gamma-rate))
+         (define epsilon-rate (calculate-rate calculate-epsilon-rate))
+         (define power-consumption (* gamma-rate epsilon-rate))
       
-      power-consumption)))
+         power-consumption)))))
 
-(printf "day 3, part 1: ~a" submarine-power-consumption)
+(printf "day 3, part 1: ~a, took: ~a ms" submarine-power-consumption total-run-time)
