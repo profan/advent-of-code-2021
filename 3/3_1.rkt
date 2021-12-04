@@ -16,8 +16,8 @@
 
 (: more-zeroes-than-ones? (-> (Vectorof Integer) Boolean))
 (define (more-zeroes-than-ones? bit-column)
-  (define zeros (for/sum : Integer ([i bit-column])(if (= i 0) 1 0)))
-  (define ones (for/sum : Integer ([i bit-column]) (if (= i 1) 1 0)))
+  (define zeros (for/sum : Integer ([i bit-column] #:when (= i 0)) 1))
+  (define ones (for/sum : Integer ([i bit-column] #:when (= i 1)) 1))
   (> zeros ones))
 
 (: calculate-gamma-rate (-> (Vectorof Integer) Rate))
