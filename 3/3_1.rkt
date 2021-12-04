@@ -35,6 +35,27 @@
   (define total-time (- (current-inexact-milliseconds) start-time))
   (values function-result total-time))
 
+(: calculate-power-consumption (-> (Vectorof Integer) Integer Integer))
+(define (calculate-power-consumption all-integers bit-count)
+  
+  (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
+  (define (calculate-rate fn)
+    (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
+      (define column (bit-column all-integers bit-count n))
+      (define calculated-rate (fn column))
+      (define new-bitwise-result
+        (if (= calculated-rate 1)
+            (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
+            (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
+      new-bitwise-result))
+
+  (define gamma-rate (calculate-rate calculate-gamma-rate))
+  (define epsilon-rate (calculate-rate calculate-epsilon-rate))
+  (define power-consumption (* gamma-rate epsilon-rate))
+      
+  power-consumption)
+  
+
 (define-values (submarine-power-consumption total-run-time)
   (run-timed
    (lambda ()
@@ -46,21 +67,7 @@
          (define all-integers (in-binary-integers all-lines))
          (define bit-count (string-length (vector-ref all-lines 0)))
 
-         (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
-         (define (calculate-rate fn)
-           (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
-             (define column (bit-column all-integers bit-count n))
-             (define calculated-rate (fn column))
-             (define new-bitwise-result
-               (if (= calculated-rate 1)
-                   (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
-                   (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
-             new-bitwise-result))
-
-         (define gamma-rate (calculate-rate calculate-gamma-rate))
-         (define epsilon-rate (calculate-rate calculate-epsilon-rate))
-         (define power-consumption (* gamma-rate epsilon-rate))
-      
+         (define power-consumption (calculate-power-consumption all-integers bit-count))
          power-consumption)))))
 
 (printf "day 3, part 1: ~a, took: ~a ms" submarine-power-consumption total-run-time)
