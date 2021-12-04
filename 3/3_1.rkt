@@ -1,5 +1,7 @@
 #lang typed/racket
 
+(define-type Rate (U Zero One))
+
 (: sequence->vector (All (A) (-> (Sequenceof A) (Vectorof A))))
 (define (sequence->vector s)
   (list->vector (sequence->list s)))
@@ -7,10 +9,9 @@
 (: in-binary-integers (-> (Vectorof String) (Vectorof Integer)))
 (define (in-binary-integers s) (vector-map (lambda ([e : String]) (assert (string->number e 2) exact-integer?)) s))
 
-(: bit-column (-> (Vectorof String) Integer Integer (Vectorof Integer)))
-(define (bit-column lines bit-count n)
-  (for/vector : (Vectorof Integer)
-    ([i (in-binary-integers lines)])
+(: bit-column (-> (Vectorof Integer) Integer Integer (Vectorof Integer)))
+(define (bit-column integers bit-count n)
+  (for/vector : (Vectorof Integer) ([i integers])
     (bitwise-bit-field i (- bit-count n 1) (- bit-count n))))
 
 (: more-zeroes-than-ones? (-> (Vectorof Integer) Boolean))
@@ -19,11 +20,11 @@
   (define ones (for/sum : Integer ([i bit-column]) (if (= i 1) 1 0)))
   (> zeros ones))
 
-(: calculate-gamma-rate (-> (Vectorof Integer) Integer))
+(: calculate-gamma-rate (-> (Vectorof Integer) Rate))
 (define (calculate-gamma-rate bit-column)
   (if (more-zeroes-than-ones? bit-column) 0 1))
 
-(: calculate-epsilon-rate (-> (Vectorof Integer) Integer))
+(: calculate-epsilon-rate (-> (Vectorof Integer) Rate))
 (define (calculate-epsilon-rate bit-column)
   (if (more-zeroes-than-ones? bit-column) 1 0))
 
@@ -33,13 +34,15 @@
     (lambda ([in : Input-Port])
       
       (define all-lines (sequence->vector (in-lines in)))
+      (define all-integers (in-binary-integers all-lines))
+
       (define bit-count (string-length (vector-ref all-lines 0)))
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
       (define (calculate-rate fn)
         (define calculated-rate
           (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
-            (define column (bit-column all-lines bit-count n))
+            (define column (bit-column all-integers bit-count n))
             (define calculated-rate (fn column))
             (define new-bitwise-result
               (if (= calculated-rate 1)
