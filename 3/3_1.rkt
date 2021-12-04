@@ -1,10 +1,12 @@
 #lang typed/racket
 
+(: ~ (-> Integer Integer))
 (define (~ n) (bitwise-not n))
 
 (: & (-> Integer Integer Integer))
 (define (& n m) (bitwise-and n m))
 
+(: << (-> Integer Integer Integer))
 (define (<< n s) (arithmetic-shift n s))
 
 (define-type Rate (U Zero One))
@@ -53,6 +55,7 @@
 
   (define gamma-rate (calculate-rate calculate-gamma-rate))
   (define epsilon-rate (calculate-final-epsilon-rate gamma-rate bit-count))
+
   (define power-consumption (* gamma-rate epsilon-rate))
   power-consumption)
 
