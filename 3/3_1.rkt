@@ -52,9 +52,7 @@
   (define gamma-rate (calculate-rate calculate-gamma-rate))
   (define epsilon-rate (calculate-rate calculate-epsilon-rate))
   (define power-consumption (* gamma-rate epsilon-rate))
-      
   power-consumption)
-  
 
 (define-values (submarine-power-consumption total-run-time)
   (run-timed
@@ -62,11 +60,9 @@
      (call-with-input-file
          "day_3_input.txt"
        (lambda ([in : Input-Port])
-      
          (define all-lines (sequence->vector (in-lines in)))
          (define all-integers (in-binary-integers all-lines))
          (define bit-count (string-length (vector-ref all-lines 0)))
-
          (define power-consumption (calculate-power-consumption all-integers bit-count))
          power-consumption)))))
 
