@@ -47,6 +47,7 @@
                   (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
             new-bitwise-result))
         calculated-rate)
+
       (define gamma-rate (calculate-rate calculate-gamma-rate))
       (define epsilon-rate (calculate-rate calculate-epsilon-rate))
       (define power-consumption (* gamma-rate epsilon-rate))
