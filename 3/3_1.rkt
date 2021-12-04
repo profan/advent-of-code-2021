@@ -55,7 +55,6 @@
 
   (define gamma-rate (calculate-rate calculate-gamma-rate))
   (define epsilon-rate (calculate-final-epsilon-rate gamma-rate bit-count))
-
   (define power-consumption (* gamma-rate epsilon-rate))
   power-consumption)
 
