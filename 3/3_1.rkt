@@ -35,7 +35,6 @@
       
       (define all-lines (sequence->vector (in-lines in)))
       (define all-integers (in-binary-integers all-lines))
-
       (define bit-count (string-length (vector-ref all-lines 0)))
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
