@@ -38,7 +38,7 @@
 (: calculate-power-consumption (-> (Vectorof Integer) Integer Integer))
 (define (calculate-power-consumption all-integers bit-count)
   
-  (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
+  (: calculate-rate (-> (-> (Vectorof Integer) Rate) Integer))
   (define (calculate-rate fn)
     (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
       (define column (bit-column all-integers bit-count n))
