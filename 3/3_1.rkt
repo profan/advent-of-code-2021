@@ -1,10 +1,9 @@
 #lang typed/racket
 
-(define-type Rate (U Zero One))
+(define (~ n) (bitwise-not n))
+(define (<< n s) (arithmetic-shift n s))
 
-(: sequence->vector (All (A) (-> (Sequenceof A) (Vectorof A))))
-(define (sequence->vector s)
-  (list->vector (sequence->list s)))
+(define-type Rate (U Zero One))
 
 (: in-binary-integers (-> (Vectorof String) (Vectorof Integer)))
 (define (in-binary-integers s) (vector-map (lambda ([e : String]) (assert (string->number e 2) exact-integer?)) s))
@@ -39,14 +38,13 @@
 (define (calculate-power-consumption all-integers bit-count)
   
   (: calculate-rate (-> (-> (Vectorof Integer) Rate) Integer))
-  (define (calculate-rate fn)
+  (define (calculate-rate rate-fn)
     (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
       (define column (bit-column all-integers bit-count n))
-      (define calculated-rate (fn column))
       (define new-bitwise-result
-        (if (= calculated-rate 1)
-            (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
-            (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
+        (if (= (rate-fn column) 1)
+            (bitwise-ior result (<< 1 (- bit-count n 1)))
+            (bitwise-and result (~ (<< 1 (- bit-count n 1))))))
       new-bitwise-result))
 
   (define gamma-rate (calculate-rate calculate-gamma-rate))
@@ -60,7 +58,7 @@
      (call-with-input-file
          "day_3_input.txt"
        (lambda ([in : Input-Port])
-         (define all-lines (sequence->vector (in-lines in)))
+         (define all-lines (list->vector (port->lines in)))
          (define all-integers (in-binary-integers all-lines))
          (define bit-count (string-length (vector-ref all-lines 0)))
          (define power-consumption (calculate-power-consumption all-integers bit-count))
