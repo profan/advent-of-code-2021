@@ -30,24 +30,26 @@
 (define submarine-power-consumption
   (call-with-input-file
     "day_3_input.txt"
-    (lambda ([in : Input-Port])   
+    (lambda ([in : Input-Port])
+      
       (define all-lines (sequence->vector (in-lines in)))
       (define bit-count (string-length (vector-ref all-lines 0)))
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
       (define (calculate-rate fn)
-        (define gamma-rates
+        (define calculated-rates
           (for/list : (Listof String) ([n (in-range bit-count)])
             (define column (bit-column all-lines bit-count n))
             (define calculated-rate (fn column))
             (number->string calculated-rate)))
-        (define combined-rate-bit-string (string-join gamma-rates "")) ;; this is kinda ugly.. :D shouldn't need strings really
+        (define combined-rate-bit-string (string-join calculated-rates "")) ;; this is kinda ugly.. :D shouldn't need strings really
         (define combined-rate (assert (string->number combined-rate-bit-string 2) exact-integer?))
         combined-rate)
-      
+
       (define gamma-rate (calculate-rate calculate-gamma-rate))
       (define epsilon-rate (calculate-rate calculate-epsilon-rate))
       (define power-consumption (* gamma-rate epsilon-rate))
+      
       power-consumption)))
 
 (printf "day 3, part 1: ~a" submarine-power-consumption)
