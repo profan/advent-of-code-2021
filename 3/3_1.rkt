@@ -39,16 +39,14 @@
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
       (define (calculate-rate fn)
-        (define calculated-rate
-          (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
-            (define column (bit-column all-integers bit-count n))
-            (define calculated-rate (fn column))
-            (define new-bitwise-result
-              (if (= calculated-rate 1)
-                  (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
-                  (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
-            new-bitwise-result))
-        calculated-rate)
+        (for/fold : Integer ([result 0]) ([n (in-range bit-count)])
+          (define column (bit-column all-integers bit-count n))
+          (define calculated-rate (fn column))
+          (define new-bitwise-result
+            (if (= calculated-rate 1)
+                (bitwise-ior result (arithmetic-shift 1 (- bit-count n 1)))
+                (bitwise-and result (bitwise-not (arithmetic-shift 1 (- bit-count n 1))))))
+          new-bitwise-result))
 
       (define gamma-rate (calculate-rate calculate-gamma-rate))
       (define epsilon-rate (calculate-rate calculate-epsilon-rate))
