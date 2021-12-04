@@ -1,13 +1,13 @@
 #lang typed/racket
 
-(: in-binary-integers (-> (Sequenceof String) (Sequenceof Integer)))
-(define (in-binary-integers s) (sequence-map (lambda ([e : String]) (assert (string->number e 2) exact-integer?)) s))
+(: sequence->vector (All (A) (-> (Sequenceof A) (Vectorof A))))
+(define (sequence->vector s)
+  (list->vector (sequence->list s)))
 
-(: integer->string (-> Integer String))
-(define (integer->string i)
-  (number->string i))
+(: in-binary-integers (-> (Vectorof String) (Vectorof Integer)))
+(define (in-binary-integers s) (vector-map (lambda ([e : String]) (assert (string->number e 2) exact-integer?)) s))
 
-(: bit-column (-> (Listof String) Integer Integer (Vectorof Integer)))
+(: bit-column (-> (Vectorof String) Integer Integer (Vectorof Integer)))
 (define (bit-column lines bit-count n)
   (for/vector : (Vectorof Integer)
     ([i (in-binary-integers lines)])
@@ -31,8 +31,8 @@
   (call-with-input-file
     "day_3_input.txt"
     (lambda ([in : Input-Port])   
-      (define all-lines (sequence->list (in-lines in)))
-      (define bit-count (string-length (assert (first all-lines) string?)))
+      (define all-lines (sequence->vector (in-lines in)))
+      (define bit-count (string-length (vector-ref all-lines 0)))
 
       (: calculate-rate (-> (-> (Vectorof Integer) Integer) Integer))
       (define (calculate-rate fn)
@@ -40,7 +40,7 @@
           (for/list : (Listof String) ([n (in-range bit-count)])
             (define column (bit-column all-lines bit-count n))
             (define calculated-rate (fn column))
-            (integer->string calculated-rate)))
+            (number->string calculated-rate)))
         (define combined-rate-bit-string (string-join gamma-rates "")) ;; this is kinda ugly.. :D shouldn't need strings really
         (define combined-rate (assert (string->number combined-rate-bit-string 2) exact-integer?))
         combined-rate)
