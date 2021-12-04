@@ -1,6 +1,10 @@
 #lang typed/racket
 
 (define (~ n) (bitwise-not n))
+
+(: & (-> Integer Integer Integer))
+(define (& n m) (bitwise-and n m))
+
 (define (<< n s) (arithmetic-shift n s))
 
 (define-type Rate (U Zero One))
@@ -23,9 +27,9 @@
 (define (calculate-gamma-rate bit-column)
   (if (more-zeroes-than-ones? bit-column) 0 1))
 
-(: calculate-epsilon-rate (-> (Vectorof Integer) Rate))
-(define (calculate-epsilon-rate bit-column)
-  (if (more-zeroes-than-ones? bit-column) 1 0))
+(: calculate-final-epsilon-rate (-> Integer Integer Integer))
+(define (calculate-final-epsilon-rate gamma-rate bit-count)
+  (& (~ gamma-rate) (- (<< 1 bit-count) 1)))
 
 (: run-timed (All (A) (-> (-> A) (Values A Real))))
 (define (run-timed timed-fn)
@@ -48,7 +52,7 @@
       new-bitwise-result))
 
   (define gamma-rate (calculate-rate calculate-gamma-rate))
-  (define epsilon-rate (calculate-rate calculate-epsilon-rate))
+  (define epsilon-rate (calculate-final-epsilon-rate gamma-rate bit-count))
   (define power-consumption (* gamma-rate epsilon-rate))
   power-consumption)
 
